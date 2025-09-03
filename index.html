@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carta Secreta 2 by myeya</title>
+
+  <!-- Webfonts (mismas en PC y móvil) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+  <style>
+    /* Evita que iOS/Android cambien el tamaño de la letra */
+    html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+
+    body {
+      font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: rgb(194, 197, 197);
+      overflow-x: hidden;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .hearts {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .heart {
+      position: absolute;
+      animation: fall linear forwards;
+      color: rgba(255,0,0,0.6);
+    }
+    @keyframes fall {
+      to { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .screen {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100svh; /* mejor en móviles que 100vh */
+      text-align: center;
+      flex-direction: column;
+      position: relative;
+      z-index: 2;
+      padding: 24px;
+    }
+    .active { display: flex; }
+
+    .password-screen { gap: 12px; }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      gap: 10px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    .key {
+      background-color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      padding: 14px 0;
+      cursor: pointer;
+      transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.15);
+    }
+    .key:hover { background-color: #eef3f7; transform: translateY(-2px); }
+
+    .input-display {
+      font-size: 24px;
+      letter-spacing: 8px;
+      font-weight: 700;
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .notepad {
+      background-color: #f9f9f9;
+      border: 3px solid #000;
+      padding: 22px;
+      border-radius: 22px;
+      width: min(92vw, 680px);
+      text-align: left;
+      font-family: "Patrick Hand", "Nunito", Arial, sans-serif; /* mano-escrita consistente */
+      line-height: 1.6;
+      box-shadow: 8px 8px 15px rgba(0,0,0,0.2);
+    }
+    .notepad h3, .notepad h4 { margin: 0; }
+    .notepad h4 { margin-top: 6px; }
+
+    .notepad p { 
+      margin: 14px 0;
+      text-align: justify;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 16px;
+      background-color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.15);
+      transition: transform .15s ease, background-color .15s ease;
+    }
+    .back-btn:hover { background-color: #e8e8e8; transform: translateY(-2px); }
+
+    /* Titular del password */
+    .title {
+      font-weight: 700;
+      font-size: clamp(20px, 2.5vw, 28px);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts"></div>
+
+  <!-- Pantalla de contraseña -->
+  <div id="passwordScreen" class="screen password-screen active">
+    <h2 class="title">🔒 Ingresa la contraseña</h2>
+    <div class="input-display" id="inputDisplay">••••</div>
+    <div class="keypad" aria-label="Teclado numérico">
+      <button class="key" onclick="enterDigit('1')">1</button>
+      <button class="key" onclick="enterDigit('2')">2</button>
+      <button class="key" onclick="enterDigit('3')">3</button>
+      <button class="key" onclick="enterDigit('4')">4</button>
+      <button class="key" onclick="enterDigit('5')">5</button>
+      <button class="key" onclick="enterDigit('6')">6</button>
+      <button class="key" onclick="enterDigit('7')">7</button>
+      <button class="key" onclick="enterDigit('8')">8</button>
+      <button class="key" onclick="enterDigit('9')">9</button>
+      <button class="key" onclick="checkPassword()">✔</button>
+      <button class="key" onclick="enterDigit('0')">0</button>
+      <button class="key" onclick="deleteLast()">⌫</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de carta -->
+  <div id="notepadScreen" class="screen">
+    <div class="notepad">
+      <h3>📅 02 Septiembre 2025</h3>
+      <h4>💌 Querida Melissa</h4>
+
+      <p>
+        Holaaaa, creo que me veo muy cursi e intenso haciendo esto, pero X JAJAJA, espero te guste.
+        Solo quería decirte que este poco tiempo que llevo de conocerte me he dado cuenta de lo especial que eres.
+        Nunca había conocido a alguien como tú, con quien pudiera fluir —dirías tú JAJAJA— de la mejor manera.
+      </p>
+
+      <p>
+        Siempre que paso tiempo contigo simplemente me siento bien, me haces reír y, en pocas palabras, me haces sentir cómodo JAJAJA.
+      </p>
+
+      <p>
+        Y no sé, pero creo que esto puede terminar de una forma bonita. No sé si pienses igual, pero igual te lo digo JAJAJA.
+        Créeme que para mí no es fácil permitirme sentir algo por alguien, pero no sé qué hiciste… tú lo lograste.
+        En fin, espero te haya gustado y que no pienses que soy rarito JAJAJA.
+      </p>
+
+      <p>Te quiero mucho, feliz día niña. ♡</p>
+
+      <button class="back-btn" onclick="goBack()">🔙 Inicio</button>
+    </div>
+  </div>
+
+  <script>
+    // Corazones animados
+    function crearCorazones() {
+      const heartsContainer = document.querySelector('.hearts');
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.textContent = '❤';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        heartsContainer.appendChild(heart);
+        setTimeout(() => heart.remove(), 8000);
+      }, 500);
+    }
+    crearCorazones();
+
+    // Lógica de contraseña
+    const correctPassword = '1111';
+    let input = '';
+
+    function enterDigit(digit) {
+      if (input.length < 4) {
+        input += digit;
+        updateDisplay();
+      }
+    }
+    function deleteLast() {
+      input = input.slice(0, -1);
+      updateDisplay();
+    }
+    function updateDisplay() {
+      document.getElementById('inputDisplay').textContent = input.padEnd(4, '•');
+    }
+    function checkPassword() {
+      if (input.length === 4) {
+        if (input === correctPassword) {
+          document.getElementById('passwordScreen').classList.remove('active');
+          document.getElementById('notepadScreen').classList.add('active');
+        } else {
+          alert('Contraseña incorrecta, intenta de nuevo');
+          input = '';
+          updateDisplay();
+        }
+      } else {
+        alert('Debes ingresar los 4 dígitos.');
+      }
+    }
+    function goBack() {
+      document.getElementById('notepadScreen').classList.remove('active');
+      document.getElementById('passwordScreen').classList.add('active');
+      input = '';
+      updateDisplay();
+    }
+  </script>
+</body>
+</html>
